@@ -1,0 +1,18 @@
+[general]
+name=RasterTrend
+qgisMinimumVersion=3.16
+description=Pixel-wise Mann-Kendall trend analysis and Sen's Slope estimation on raster time series stacks
+version=1.0.0
+author=Irfan Mahmood
+email=irfan.koreshe@gmail.com
+about=RasterTrend performs pixel-wise monotonic trend detection on raster stacks using the Mann-Kendall test and Sen's Slope estimator. Supports both standard and Seasonal Mann-Kendall for data with periodic cycles. Outputs trend slope, p-value, and significance mask rasters. Designed for vegetation monitoring, climate analysis, and any time-series remote sensing workflow.
+tracker=https://github.com/mahmoodirfan/RasterTrend/issues
+repository=https://github.com/mahmoodirfan/RasterTrend
+tags=raster,trend,mann-kendall,sen slope,time series,remote sensing,NDVI,climate,vegetation,temporal analysis
+homepage=https://github.com/mahmoodirfan/RasterTrend
+category=Raster
+icon=icons/icon.png
+experimental=False
+deprecated=False
+server=False
+hasProcessingProvider=True
