@@ -106,8 +106,8 @@ on Raster Time Series. GitHub: https://github.com/mahmoodirfan/RasterTrend
 ## Author
 
 **Irfan Mahmood**  
-Remote Sensing & GIS Specialist | ADB Consultant  
-📧 irfan.koreshe@gmail.com  
+Remote Sensing & GIS Specialist
+📧 irfan-mahmood@outlook.com  
 🔗 [github.com/mahmoodirfan](https://github.com/mahmoodirfan)
 
 ---
