@@ -1,117 +1,64 @@
-# RasterTrend – Mann-Kendall Trend Analysis for QGIS
+# RasterTrend
+### Map gradual change through time.
 
-[![QGIS](https://img.shields.io/badge/QGIS-3.16%2B-green)](https://qgis.org)
-[![License](https://img.shields.io/badge/License-GPL--2.0-blue)](LICENSE)
+A QGIS Processing plugin for pixel-wise Standard or Seasonal Mann–Kendall analysis and Sen’s slope estimation on time-ordered rasters.
 
-A QGIS Processing plugin for pixel-wise monotonic trend detection on raster time series stacks using the **Mann-Kendall test** and **Sen's Slope estimator**.
+**QGIS 3.16+ declared in plugin metadata** · Python · QGIS Processing
 
----
+[Detailed guide](docs/guide.md) · [Report a problem](https://github.com/mahmoodirfan/RasterTrend/issues) · [Contribute](CONTRIBUTING.md)
 
-## Features
+## Start here
 
-- **Standard Mann-Kendall** – for annual/interannual data without strong seasonality
-- **Seasonal Mann-Kendall** – for periodic data (e.g. monthly NDVI, precipitation) that accounts for seasonal cycles
-- **Sen's Slope** – non-parametric trend magnitude estimator
-- **Significance mask** – binary output at user-defined p-value threshold
-- Fully integrated into the **QGIS Processing Toolbox** — works in batch mode and Model Builder
-- No external dependencies beyond NumPy and SciPy (included in QGIS)
+1. Load a small set of aligned, chronologically ordered raster layers. The algorithm reads **band 1 of each layer**.
+2. Open **Processing Toolbox → RasterTrend → Trend Analysis → Mann-Kendall Trend Analysis**.
+3. Select Standard or Seasonal Mann-Kendall. For monthly seasonal data, set the period to `12`.
+4. Choose a significance threshold and a new output folder, then run.
+5. Inspect slope, p-value and significance together. A significance mask alone does not describe effect size.
 
----
+## Install
 
-## Outputs
+In QGIS, open **Plugins → Manage and Install Plugins** and search for **RasterTrend**. If a compatible listing is unavailable, install from this repository:
 
-| File | Description |
-|------|-------------|
-| `sens_slope.tif` | Sen's Slope – trend magnitude per time step |
-| `p_value.tif` | Two-tailed p-value per pixel |
-| `kendall_tau.tif` | Kendall's Tau correlation coefficient |
-| `significance_mask.tif` | 1 = significant trend, 0 = not significant |
+1. Download and extract the source archive.
+2. Rename the extracted plugin directory to `RasterTrend` (remove a branch suffix such as `-main`).
+3. In QGIS, open **Settings → User Profiles → Open Active Profile Folder**.
+4. Copy the directory into `python/plugins/`, creating those subfolders if needed. `metadata.txt` and `__init__.py` must sit directly inside `python/plugins/RasterTrend/`.
+5. Restart QGIS and enable **RasterTrend** in the plugin manager.
 
----
+A GitHub source ZIP is not necessarily a correctly packaged QGIS install ZIP. Use the extracted-folder steps above for source downloads. Declared minimum versions are not a substitute for testing your QGIS build.
 
-## Installation
+## What you get
 
-### From QGIS Plugin Repository
-1. Open QGIS → **Plugins → Manage and Install Plugins**
-2. Search for **RasterTrend**
-3. Click **Install**
+| File | Meaning |
+| :--- | :--- |
+| `sens_slope.tif` | Median pairwise slope per input time step |
+| `p_value.tif` | Two-sided approximate test p-value |
+| `kendall_tau.tif` | Standard mode: Kendall's tau-a; see seasonal limitation below |
+| `significance_mask.tif` | 1 where p ≤ selected threshold, otherwise 0 |
 
-### Manual Installation
-1. Download or clone this repository
-2. Copy the `RasterTrend` folder to your QGIS plugins directory:
-   - **Windows:** `C:\Users\<user>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\`
-   - **Linux/Mac:** `~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/`
-3. Open QGIS → **Plugins → Manage and Install Plugins → Installed**
-4. Enable **RasterTrend**
+## Before interpreting results
 
----
+- Use equally spaced dates and matching units, CRS, extent, dimensions and pixel alignment. This version does not check all alignment properties for you.
+- Standard mode accepts at least 4 layers. Seasonal mode's interface accepts 2 cycles, but the current engine skips seasons with fewer than 3 observations: use **at least 3 complete cycles**.
+- Pixels missing an observation anywhere in the stack are excluded.
+- The current seasonal `kendall_tau.tif` contains S divided by Var(S), **not conventional Kendall's tau**. Do not report it as a correlation coefficient.
+- Sen's slope uses all time-step pairs in both modes; it is not a season-specific slope estimator.
+- The engine does not correct variance for ties, temporal autocorrelation or spatial multiple testing.
+- The stack and pairwise slopes are held in memory. Begin with a small spatial subset.
 
-## Usage
+## Documentation & support
 
-1. Open **Processing Toolbox** (`Ctrl+Alt+T`)
-2. Navigate to **RasterTrend → Mann-Kendall Trend Analysis**
-3. Configure parameters:
-   - **Input raster layers** – select time-ordered raster stack
-   - **Test type** – Standard or Seasonal Mann-Kendall
-   - **Season period** – number of seasons per cycle (Seasonal MK only)
-   - **Significance threshold** – p-value cutoff (default 0.05)
-   - **Output folder** – where results will be saved
-4. Click **Run**
+The [detailed guide](docs/guide.md) contains extended settings, interpretation examples and workflow notes.
 
----
+For a bug report, include your QGIS version, operating system, plugin version, parameters, Processing log and a small shareable example. See [contribution guidance](CONTRIBUTING.md).
 
-## Input Requirements
+## Related tools
 
-- All input rasters must share the **same extent, resolution, and CRS**
-- Layers must be **ordered chronologically**
-- **Minimum 4 layers** required; 10+ recommended for statistical reliability
-- Seasonal MK requires at least `2 × period` layers
+[RasterTrend](https://github.com/mahmoodirfan/RasterTrend) · [TrendShift](https://github.com/mahmoodirfan/TrendShift) · [OpenGeoEnrich](https://github.com/mahmoodirfan/OpenGeoEnrich) · [spatialdrought](https://github.com/mahmoodirfan/spatialdrought)
 
----
+## Author & license
 
-## Statistical Background
+**[Irfan Mahmood](https://github.com/mahmoodirfan)** · Remote Sensing & GIS Specialist  
+[Email](mailto:irfan-mahmood@outlook.com) · [License](LICENSE)
 
-### Mann-Kendall Test
-Non-parametric test for monotonic trends in time series. Does not assume normality or homoscedasticity. Resistant to outliers. Widely used in hydrology, climatology, and vegetation monitoring.
-
-### Seasonal Mann-Kendall
-Extension of the standard MK test that computes statistics separately for each season before combining them. Prevents spurious trend detection caused by seasonal cycles in data like monthly NDVI or precipitation.
-
-### Sen's Slope
-Non-parametric estimator of trend magnitude. Computed as the median of all pairwise slopes across the time series. More robust than ordinary least squares for skewed or outlier-affected data.
-
----
-
-## Example Applications
-
-- NDVI trend analysis from Landsat/Sentinel-2 time series
-- Precipitation or temperature trend detection from climate rasters
-- Rangeland degradation monitoring
-- Vegetation recovery assessment post-disturbance
-- Cropland productivity trend mapping
-
----
-
-## Citation
-
-If you use RasterTrend in your research, please cite:
-
-```
-Mahmood, I. (2025). RasterTrend: A QGIS Plugin for Mann-Kendall Trend Analysis 
-on Raster Time Series. GitHub: https://github.com/mahmoodirfan/RasterTrend
-```
-
----
-
-## Author
-
-**Irfan Mahmood**  
-Remote Sensing & GIS Specialist
-📧 irfan-mahmood@outlook.com  
-🔗 [github.com/mahmoodirfan](https://github.com/mahmoodirfan)
-
----
-
-## License
-
-GNU General Public License v2.0 — see [LICENSE](LICENSE)
+For research use, cite the repository and record the version or commit you used. Existing citation details are retained in the detailed guide where provided.
